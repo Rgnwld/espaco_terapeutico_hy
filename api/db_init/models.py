@@ -1,0 +1,72 @@
+from sqlalchemy import (
+    Column, Integer, String, DateTime, LargeBinary, ForeignKey
+)
+from sqlalchemy.orm import relationship, declarative_base
+from datetime import datetime
+
+Base = declarative_base()
+
+class Usuario(Base):
+    __tablename__ = 'usuarios'
+    id = Column(Integer, primary_key=True)
+    nome = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    senha = Column(String, nullable=False)
+    data_criacao = Column(DateTime, default=datetime.utcnow)
+
+    tipo = Column(String)  # Discriminator para herança
+    __mapper_args__ = {
+        'polymorphic_on': tipo,
+        'polymorphic_identity': 'usuario'
+    }
+
+    def validacao_token(self):
+        # lógica de validação de token
+        return f"Token validado para {self.nome}"
+
+    def refresh_token(self):
+        # lógica de refresh
+        return f"Novo token gerado para {self.nome}"
+
+
+class Admin(Usuario):
+    __tablename__ = 'admins'
+    id = Column(Integer, ForeignKey('usuarios.id'), primary_key=True)
+    nivel_de_acesso = Column(Integer, nullable=False)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'admin'
+    }
+
+    def validate_acao(self, func):
+        # Validação com base no nível de acesso
+        if self.nivel_de_acesso >= 5:
+            return func()
+        else:
+            return "Acesso negado"
+
+
+class Paciente(Usuario):
+    __tablename__ = 'pacientes'
+    id = Column(Integer, ForeignKey('usuarios.id'), primary_key=True)
+    data_nascimento = Column(DateTime)
+    genero = Column(String)
+    historico_medico = Column(LargeBinary)
+    documentacao = Column(LargeBinary)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'paciente'
+    }
+
+    def marcarConsulta(self):
+        return f"Consulta marcada para o paciente {self.nome}"
+
+
+class ProfissionalDeSaude(Base):
+    __tablename__ = 'profissionais'
+    id = Column(Integer, primary_key=True)
+    nome = Column(String, nullable=False)
+    documentacao = Column(LargeBinary)
+
+    def solicitarExame(self):
+        return f"Exame solicitado por {self.nome}"
