@@ -1,0 +1,66 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches do pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Arquivos de ambiente virtual
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Arquivos do Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Arquivos de configuração de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de log
+*.log
+
+# Banco de dados local, SQLite
+*.sqlite3
+
+# Arquivos de testes
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.cache
+
+# Build e distribuição
+build/
+dist/
+*.egg-info/
+.eggs/
+*.whl
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+
+# Arquivos de configuração de ambiente
+.env
+.env.*
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# pyright
+pyrightconfig.json
