@@ -1,7 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from models import Base, Usuario  # Assumindo que está em models.py
-import hashlib
+from app.models.usuario import Usuario
+from app.models.perfil import Perfil, PERFIL
+from app.utils.senha import hash_senha  # Importando a função de hash de senha
 from dotenv import load_dotenv
 import os
 
@@ -11,11 +12,24 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
-def hash_senha(senha: str):
-    # Exemplo simples de hash – use bcrypt/scrypt em produção!
-    return hashlib.sha256(senha.encode()).hexdigest()
+def criar_default_perfils(_nome):
+    session = SessionLocal()
+    try:
+        perfil_existente = session.query(Usuario).filter_by(nome=_nome).first()
+        
+        if not perfil_existente:
+            perfil = Perfil(
+                descricao=_nome,
+            )
+            session.add(perfil)
+            session.commit()
+            print("Perfil criados com sucesso.")
+        else:
+            print("Perfil de Usuário já gerado.")
+    finally:
+        session.close()
 
-def criar_admin(_user, _email, _senha):
+def criar_admin_user(_user, _email, _senha):
     session = SessionLocal()
     try:
         usuario_existente = session.query(Usuario).filter_by(email=_email).first()
@@ -25,7 +39,7 @@ def criar_admin(_user, _email, _senha):
                 nome=_user,
                 email=_email,
                 senha=hash_senha(_senha),
-                tipo='admin'
+                perfil=PERFIL.ADMIN.value
             )
             session.add(admin)
             session.commit()
@@ -34,6 +48,3 @@ def criar_admin(_user, _email, _senha):
             print("Usuário admin já existe.")
     finally:
         session.close()
-
-if __name__ == "__main__":
-    criar_admin()

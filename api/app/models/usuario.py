@@ -1,3 +1,4 @@
+from enum import Enum
 from sqlalchemy import (
     Column, Integer, String, DateTime, LargeBinary, ForeignKey
 )
@@ -6,6 +7,10 @@ from datetime import datetime
 
 Base = declarative_base()
 
+class TIPO_USUARIO(Enum):
+    ADMIN = 1
+    USER = 2
+
 class Usuario(Base):
     __tablename__ = 'usuarios'
     id = Column(Integer, primary_key=True)
@@ -13,21 +18,7 @@ class Usuario(Base):
     email = Column(String, unique=True, nullable=False)
     senha = Column(String, nullable=False)
     data_criacao = Column(DateTime, default=datetime.utcnow)
-
-    tipo = Column(String)  # Discriminator para herança
-    __mapper_args__ = {
-        'polymorphic_on': tipo,
-        'polymorphic_identity': 'usuario'
-    }
-
-    def validacao_token(self):
-        # lógica de validação de token
-        return f"Token validado para {self.nome}"
-
-    def refresh_token(self):
-        # lógica de refresh
-        return f"Novo token gerado para {self.nome}"
-
+    perfil = Column(Integer)  # Discriminator para herança
 
 class Admin(Usuario):
     __tablename__ = 'admins'
