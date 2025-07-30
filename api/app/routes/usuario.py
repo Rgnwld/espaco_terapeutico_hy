@@ -2,6 +2,7 @@ from flask import g, jsonify, Blueprint, request
 from db.connection import SessionLocal
 from app.models.usuario import Usuario, TIPO_USUARIO
 from app.utils.senha import hash_senha
+from app.utils.auth import auth_required
 
 usuario_bp = Blueprint('usuario', __name__)
 
@@ -17,6 +18,7 @@ def teardown_request(exception=None):
         db.close()
 
 @usuario_bp.route("/<id>", methods=["GET"])
+@auth_required
 def obter_usuario(id):
     db = g.db
     u = db.query(Usuario).filter(Usuario.id == id).first()
@@ -35,7 +37,7 @@ def login(id):
     else:
         return jsonify({"error": "Usuário não encontrado"}), 404    
     
-    
+
 @usuario_bp.route("/", methods=["POST"])
 def criar_usuario():
     db = g.db

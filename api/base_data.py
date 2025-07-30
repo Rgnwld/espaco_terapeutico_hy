@@ -1,7 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from app.models.usuario import Usuario
-from app.models.perfil import Perfil, PERFIL
+from app.models.usuario import Usuario, Base as BaseUsuario
+from app.models.perfil import Perfil, PERFIL, Base as BasePerfil
+from app.models.log import Log, Base as BaseLog
 from app.utils.senha import hash_senha  # Importando a função de hash de senha
 from dotenv import load_dotenv
 import os
@@ -11,6 +12,12 @@ load_dotenv()
 DATABASE_URL = os.environ.get('DATABASE_URL')
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
+
+def init_db():
+    engine = create_engine(DATABASE_URL)
+    BaseUsuario.metadata.create_all(engine)
+    BasePerfil.metadata.create_all(engine)
+    BaseLog.metadata.create_all(engine)
 
 def criar_default_perfils(_descricao):
     session = SessionLocal()

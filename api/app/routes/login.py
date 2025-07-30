@@ -5,14 +5,15 @@ from db.connection import SessionLocal
 from datetime import datetime, timedelta
 from app.models.usuario import Usuario
 from app.models.log import Log
+from app.utils.auth import auth_required
 import bcrypt
 from dotenv import load_dotenv
 
 load_dotenv()
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
-
 login_bp = Blueprint('login', __name__)
+
 
 @login_bp.before_request
 def before_request():
@@ -76,33 +77,27 @@ def login():
 @login_bp.route("/refresh_token", methods=["POST"])
 def refresh_token():
     db = g.db
-    data = request.get_json()
-    
-    if not SECRET_KEY:
-        log = Log(descricao="Problemas com a Senha de Encrypt do Servidor!", tipo="refresh_token")
-        db.add(log)
-        db.commit()
-        return jsonify(message="Problemas com a Senha de Encrypt do Servidor!"), 500
-    
-    if "token" not in data:
-        log = Log(descricao="Token não fornecido!", tipo="refresh_token")
-        db.add(log)
-        db.commit()
-        return jsonify(message="Token não fornecido!"), 400
+    token = request.headers.get('Authorization')
+    print(token)
     
     try:
-        decoded = jwt.decode(data["token"], SECRET_KEY, algorithms=["HS256"])
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         new_token = jwt.encode(
             {"user": decoded["user"], "exp": datetime.utcnow() + timedelta(minutes=30)},
             SECRET_KEY,
             algorithm="HS256",
         )
-        
         log = Log(descricao=f"Token atualizado para o usuário: {decoded['user']}", tipo="refresh_token")
         db.add(log)
         db.commit()
-        return jsonify(token=new_token), 200
+        return jsonify(refresh_token=new_token), 200
     except jwt.ExpiredSignatureError:
         return jsonify(message="Token expirado! Faça login novamente."), 401
     except jwt.InvalidTokenError:
         return jsonify(message="Token inválido!"), 401
+
+
+@login_bp.route("/auth_teste", methods=["POST"])
+@auth_required
+def teste():
+    return jsonify(message="Autenticado com sucesso!"), 200
