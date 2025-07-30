@@ -26,19 +26,10 @@ def obter_usuario(id):
         return jsonify({'id':u.id, 'nome':u.nome, 'email': u.email}), 200
     else:
         return jsonify({"error": "Usuário não encontrado"}), 404
-
-
-@usuario_bp.route("/<id>", methods=["GET"])
-def login(id):
-    db = g.db
-    u = db.query(Usuario).filter(Usuario.id == id).first()
-    if u:
-        return jsonify({'id':u.id, 'nome':u.nome, 'email': u.email}), 200
-    else:
-        return jsonify({"error": "Usuário não encontrado"}), 404    
     
 
 @usuario_bp.route("/", methods=["POST"])
+@auth_required
 def criar_usuario():
     db = g.db
     data = request.get_json()
