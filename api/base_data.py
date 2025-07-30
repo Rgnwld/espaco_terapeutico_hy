@@ -12,20 +12,24 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
-def criar_default_perfils(_nome):
+def criar_default_perfils(_descricao):
     session = SessionLocal()
     try:
-        perfil_existente = session.query(Usuario).filter_by(nome=_nome).first()
+        perfil_existente = session.query(Perfil).filter_by(descricao=_descricao).first()
         
         if not perfil_existente:
             perfil = Perfil(
-                descricao=_nome,
+                descricao=_descricao,
             )
             session.add(perfil)
             session.commit()
             print("Perfil criados com sucesso.")
         else:
-            print("Perfil de Usuário já gerado.")
+            print("Perfil:" + _descricao +  " já gerado.")
+            print(perfil_existente.id)
+    except Exception as e:
+        print(f"Erro ao criar perfil: {e}")
+        session.rollback()
     finally:
         session.close()
 
