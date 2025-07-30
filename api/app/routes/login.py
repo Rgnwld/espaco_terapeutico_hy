@@ -72,3 +72,37 @@ def login():
             return jsonify(token=token), 200
 
     return jsonify(message="Credenciais inválidas!"), 401
+
+@login_bp.route("/refresh_token", methods=["POST"])
+def refresh_token():
+    db = g.db
+    data = request.get_json()
+    
+    if not SECRET_KEY:
+        log = Log(descricao="Problemas com a Senha de Encrypt do Servidor!", tipo="refresh_token")
+        db.add(log)
+        db.commit()
+        return jsonify(message="Problemas com a Senha de Encrypt do Servidor!"), 500
+    
+    if "token" not in data:
+        log = Log(descricao="Token não fornecido!", tipo="refresh_token")
+        db.add(log)
+        db.commit()
+        return jsonify(message="Token não fornecido!"), 400
+    
+    try:
+        decoded = jwt.decode(data["token"], SECRET_KEY, algorithms=["HS256"])
+        new_token = jwt.encode(
+            {"user": decoded["user"], "exp": datetime.utcnow() + timedelta(minutes=30)},
+            SECRET_KEY,
+            algorithm="HS256",
+        )
+        
+        log = Log(descricao=f"Token atualizado para o usuário: {decoded['user']}", tipo="refresh_token")
+        db.add(log)
+        db.commit()
+        return jsonify(token=new_token), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify(message="Token expirado! Faça login novamente."), 401
+    except jwt.InvalidTokenError:
+        return jsonify(message="Token inválido!"), 401
