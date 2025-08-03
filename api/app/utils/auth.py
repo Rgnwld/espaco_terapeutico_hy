@@ -1,4 +1,5 @@
 from flask import g, jsonify, request
+from functools import wraps
 import jwt
 import os
 from dotenv import load_dotenv
@@ -9,6 +10,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # Decorador para verificar se o usuário está autenticado
 def auth_required(f):
+    @wraps(f)
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization')
         if not token:

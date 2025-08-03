@@ -4,11 +4,17 @@ from app.routes.usuario import usuario_bp
 from app.routes.login import login_bp
 
 def create_app():
-    _app = Flask(__name__)
-    
+    app = Flask(__name__)
     # Importa e registra os blueprints personalizados
-    _app.register_blueprint(api_bp, url_prefix='/api')
-    _app.register_blueprint(usuario_bp, url_prefix='/api/usuario')
-    _app.register_blueprint(login_bp, url_prefix='/api/login')
+    app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(usuario_bp, url_prefix='/api/usuario/')
+    app.register_blueprint(login_bp, url_prefix='/api/login/')
     
-    return _app
+    @app.after_request
+    def handle_options(response):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-Requested-With"
+        return response 
+    
+    return app

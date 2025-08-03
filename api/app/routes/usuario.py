@@ -16,6 +16,13 @@ def teardown_request(exception=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+        
+@usuario_bp.after_request 
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    header['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    return response
 
 @usuario_bp.route("/<id>", methods=["GET"])
 @auth_required

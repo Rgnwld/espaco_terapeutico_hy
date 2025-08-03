@@ -25,7 +25,7 @@ def teardown_request(exception=None):
     if db is not None:
         db.close()
 
-@login_bp.route("/", methods=["POST"])
+@login_bp.route("/", methods=["POST"], strict_slashes=False)
 def login():
     db = g.db
     data = request.get_json()
