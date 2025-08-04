@@ -43,6 +43,9 @@ function Login() {
                 setToastMessage('Login efetuado com sucesso.');
                 setUserValidation(true);
                 setValidated(true);
+
+                // Redirecionar ou atualizar a página após o login bem-sucedido
+                window.location.href = '/admin/home';
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     console.error('Erro de Validação de Usuário!', error);
