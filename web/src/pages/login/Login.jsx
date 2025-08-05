@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './login.css';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -8,21 +8,19 @@ import Row from 'react-bootstrap/Row';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { Card, Container, Spinner, Toast } from 'react-bootstrap';
-import { ToastContainer } from 'react-bootstrap';
+import { useToastContext } from '../../assets/context/toastContext/toast.context';
 
 function Login() {
     const [validated, setValidated] = useState(false);
     const [userValidation, setUserValidation] = useState(true);
     const [spinner, setSpiner] = useState(false);
     const [cookie, setCookie] = useCookies();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('danger'); // success ou danger
+    const { setToast } = useToastContext();
 
     async function handleSubmit(event) {
         setUserValidation(true);
-        setShowToast(false);
         setSpiner(true);
+
         event.preventDefault();
         event.stopPropagation();
         const form = event.currentTarget;
@@ -38,32 +36,36 @@ function Login() {
                     method: 'POST',
                 });
                 setCookie('token', response.data.token);
-                setShowToast(true);
-                setToastVariant('success');
-                setToastMessage('Login efetuado com sucesso.');
                 setUserValidation(true);
                 setValidated(true);
+                setToast({
+                    type: 'ADD_TOAST', payload: { show: true, message: 'Login realizado com sucesso!', type: 'success', }
+                });
 
                 // Redirecionar ou atualizar a página após o login bem-sucedido
-                window.location.href = '/admin/home';
+                // window.location.href = '/admin/home';
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     console.error('Erro de Validação de Usuário!', error);
-                    setShowToast(true);
-                    setToastVariant('danger');
-                    setToastMessage('Email ou senha incorretos.');
+                    setToast({ type: 'ADD_TOAST', payload: { show: true, message: 'Usuário ou senha inválidos.', type: 'danger' } });
                     setUserValidation(false);
                     setValidated(false);
                 } else if (error.response && error.response.status === 500) {
                     console.error('Erro no Servidor!', error);
-                    setShowToast(true);
-                    setToastVariant('danger');
-                    setToastMessage('Erro interno do servidor. Tente novamente mais tarde.');
+                    setToast({
+                        type: 'ADD_TOAST',
+                        payload: { show: true, message: 'Erro no servidor. Tente novamente mais tarde.', type: 'danger' }
+                    });
+                    setUserValidation(false);
+                    setValidated(false);
                 } else {
+                    setToast({
+                        type: 'ADD_TOAST',
+                        payload: { show: true, message: 'Erro no Desconhecido. Tente novamente mais tarde.', type: 'danger' }
+                    });
                     console.error('Erro desconhecido!', error);
-                    setShowToast(true);
-                    setToastVariant('danger');
-                    setToastMessage('Não foi possivel acessar o servidor. Tente novamente mais tarde.');
+                    setUserValidation(false);
+                    setValidated(false);
                 }
             } finally {
                 setSpiner(false);
@@ -75,6 +77,12 @@ function Login() {
         <Container fluid className="d-flex justify-content-center align-items-center p-0" style={{ height: '100vh' }}>
             <Row>
                 <Card className="p-4 shadow">
+                    <Container className='d-flex justify-content-center p-4'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-person-circle text-secondary" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+                        </svg>
+                    </Container>
                     <Form validated={validated} onSubmit={handleSubmit} className="card-body">
                         <Row className="mb-3">
                             <Form.Group as={Col} controlId="validationCustomUsername">
@@ -131,37 +139,6 @@ function Login() {
                     </Form>
                 </Card>
             </Row>
-            {
-                <div
-                    aria-live="polite"
-                    aria-atomic="true"
-                    style={{
-                        position: 'fixed',
-                        top: 20,
-                        right: 20,
-                        zIndex: 9999,
-                    }}
-                >
-                    <Toast
-                        show={showToast}
-                        delay={3000}
-                        autohide
-                        position="top-center"
-                        bg={toastVariant} // success ou danger
-                    >
-                        <Toast.Body className="d-flex text-white">
-                            <div className="me-auto">{toastMessage}</div>
-                            <button
-                                type="button"
-                                className="btn-close btn-close-white"
-                                data-bs-dismiss="toast"
-                                aria-label="Close"
-                                onClick={() => setShowToast(false)}
-                            />
-                        </Toast.Body>
-                    </Toast>
-                </div>
-            }
         </Container>
     );
 }

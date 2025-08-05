@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 import { CookiesProvider } from 'react-cookie';
+import { ToastProvider } from './assets/context/toastContext/toast.context.jsx';
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <CookiesProvider defaultSetOptions={{ path: '/' }}>
-            <App />
-        </CookiesProvider>
+        <ToastProvider>
+            <CookiesProvider defaultSetOptions={{ path: '/' }}>
+                <App />
+            </CookiesProvider>
+        </ToastProvider>
     </StrictMode>
 );
