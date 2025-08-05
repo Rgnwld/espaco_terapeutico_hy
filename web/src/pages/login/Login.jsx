@@ -9,6 +9,8 @@ import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { Card, Container, Spinner, Toast } from 'react-bootstrap';
 import { useToastContext } from '../../assets/context/toastContext/toast.context';
+import { instance } from '../../assets/api/connection.jsx';
+import { data } from 'react-router-dom';
 
 function Login() {
     const [validated, setValidated] = useState(false);
@@ -30,20 +32,15 @@ function Login() {
             var jsonfyied_login = JSON.stringify(login);
 
             try {
-                const response = await axios('http://localhost:5000/api/login', {
-                    data: jsonfyied_login,
-                    headers: { 'Content-Type': 'application/json' },
-                    method: 'POST',
-                });
+                const response = await instance('/login', { data: jsonfyied_login, method: 'POST' })
                 setCookie('token', response.data.token);
                 setUserValidation(true);
                 setValidated(true);
                 setToast({
                     type: 'ADD_TOAST', payload: { show: true, message: 'Login realizado com sucesso!', type: 'success', }
                 });
-
                 // Redirecionar ou atualizar a página após o login bem-sucedido
-                // window.location.href = '/admin/home';
+                window.location.href = '/home';
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     console.error('Erro de Validação de Usuário!', error);
