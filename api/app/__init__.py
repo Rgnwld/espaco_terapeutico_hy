@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, request, Response
 from app.routes.default import api_bp 
 from app.routes.usuario import usuario_bp
 from app.routes.login import login_bp
@@ -16,5 +16,12 @@ def create_app():
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-Requested-With"
         return response 
+    
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            res = Response()
+            res.headers['X-Content-Type-Options'] = '*'
+            return res
     
     return app

@@ -1,16 +1,11 @@
 import { useState } from 'react';
 import './login.css';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Row from 'react-bootstrap/Row';
-import axios from 'axios';
+import { Button, Col, Form, InputGroup, Row, Image } from 'react-bootstrap';
 import { useCookies } from 'react-cookie';
-import { Card, Container, Spinner, Toast } from 'react-bootstrap';
+import { Card, Container, Spinner } from 'react-bootstrap';
 import { useToastContext } from '../../assets/context/toastContext/toast.context';
 import { instance } from '../../assets/api/connection.jsx';
-import { data } from 'react-router-dom';
+import bg from '../../assets/img/bg_v1.jpg';
 
 function Login() {
     const [validated, setValidated] = useState(false);
@@ -32,33 +27,52 @@ function Login() {
             var jsonfyied_login = JSON.stringify(login);
 
             try {
-                const response = await instance('/login', { data: jsonfyied_login, method: 'POST' })
+                // const response = await instance('login', { data: jsonfyied_login, method: 'POST' });
+                const response = await instance('/login', {
+                    data: jsonfyied_login,
+                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST',
+                });
+
                 setCookie('token', response.data.token);
                 setUserValidation(true);
                 setValidated(true);
                 setToast({
-                    type: 'ADD_TOAST', payload: { show: true, message: 'Login realizado com sucesso!', type: 'success', }
+                    type: 'ADD_TOAST',
+                    payload: { show: true, message: 'Login realizado com sucesso!', type: 'success' },
                 });
                 // Redirecionar ou atualizar a página após o login bem-sucedido
                 window.location.href = '/home';
             } catch (error) {
+                console.log(error);
                 if (error.response && error.response.status === 401) {
                     console.error('Erro de Validação de Usuário!', error);
-                    setToast({ type: 'ADD_TOAST', payload: { show: true, message: 'Usuário ou senha inválidos.', type: 'danger' } });
+                    setToast({
+                        type: 'ADD_TOAST',
+                        payload: { show: true, message: 'Usuário ou senha inválidos.', type: 'danger' },
+                    });
                     setUserValidation(false);
                     setValidated(false);
                 } else if (error.response && error.response.status === 500) {
                     console.error('Erro no Servidor!', error);
                     setToast({
                         type: 'ADD_TOAST',
-                        payload: { show: true, message: 'Erro no servidor. Tente novamente mais tarde.', type: 'danger' }
+                        payload: {
+                            show: true,
+                            message: 'Erro no servidor. Tente novamente mais tarde.',
+                            type: 'danger',
+                        },
                     });
                     setUserValidation(false);
                     setValidated(false);
                 } else {
                     setToast({
                         type: 'ADD_TOAST',
-                        payload: { show: true, message: 'Erro no Desconhecido. Tente novamente mais tarde.', type: 'danger' }
+                        payload: {
+                            show: true,
+                            message: 'Erro no Desconhecido. Tente novamente mais tarde.',
+                            type: 'danger',
+                        },
                     });
                     console.error('Erro desconhecido!', error);
                     setUserValidation(false);
@@ -71,13 +85,27 @@ function Login() {
     }
 
     return (
-        <Container fluid className="d-flex justify-content-center align-items-center p-0" style={{ height: '100vh' }}>
+        <Container
+            fluid
+            className="d-flex justify-content-center align-items-center p-0 bg"
+            style={{ height: '100vh' }}
+        >
             <Row>
                 <Card className="p-4 shadow">
-                    <Container className='d-flex justify-content-center p-4'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-person-circle text-secondary" viewBox="0 0 16 16">
+                    <Container className="d-flex justify-content-center p-4">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="100"
+                            height="100"
+                            fill="currentColor"
+                            className="bi bi-person-circle text-secondary"
+                            viewBox="0 0 16 16"
+                        >
                             <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+                            <path
+                                fillRule="evenodd"
+                                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
+                            />
                         </svg>
                     </Container>
                     <Form validated={validated} onSubmit={handleSubmit} className="card-body">

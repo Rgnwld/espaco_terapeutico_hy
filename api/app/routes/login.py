@@ -25,10 +25,11 @@ def teardown_request(exception=None):
     if db is not None:
         db.close()
 
-@login_bp.route("/", methods=["POST"], strict_slashes=False)
+@login_bp.route("/", methods=["POST", 'OPTIONS'], strict_slashes=False)
 def login():
     db = g.db
     data = request.get_json()
+    print(data)
     
     if not SECRET_KEY:
         log_acesso = Log(descricao=f"Usuário: {data['email']} - Problemas com a Senha de Encrypt do Servidor!", tipo="login")

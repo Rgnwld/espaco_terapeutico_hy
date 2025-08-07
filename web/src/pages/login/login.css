@@ -3,6 +3,6 @@
     min-width: 400px;
 }
 
-body{
-    background-image: url('../../assets//img/bg_v1.jpg');
+.bg {
+    background-image: url('../../assets/img/bg_v1.jpg');
 }
