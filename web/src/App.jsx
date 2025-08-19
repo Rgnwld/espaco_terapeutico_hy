@@ -1,6 +1,5 @@
 import { Alert } from 'react-bootstrap';
 import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import ProjectRoutes from './routes';
 
 function App() {
