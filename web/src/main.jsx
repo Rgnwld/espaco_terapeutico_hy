@@ -6,11 +6,11 @@ import { CookiesProvider } from 'react-cookie';
 import { ToastProvider } from './assets/context/toastContext/toast.context.jsx';
 
 createRoot(document.getElementById('root')).render(
-    <StrictMode>
+    <>
         <ToastProvider>
             <CookiesProvider defaultSetOptions={{ path: '/' }}>
                 <App />
             </CookiesProvider>
         </ToastProvider>
-    </StrictMode>
+    </>
 );

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from app.models.usuario import Usuario, Base as BaseUsuario
-from app.models.perfil import Perfil, PERFIL, Base as BasePerfil
+from app.models.perfil import Perfil, Base as BasePerfil
 from app.models.log import Log, Base as BaseLog
 from app.utils.senha import hash_senha  # Importando a função de hash de senha
 from dotenv import load_dotenv
@@ -15,6 +15,7 @@ SessionLocal = sessionmaker(bind=engine)
 
 def init_db():
     engine = create_engine(DATABASE_URL)
+
     BaseUsuario.metadata.create_all(engine)
     BasePerfil.metadata.create_all(engine)
     BaseLog.metadata.create_all(engine)
@@ -39,23 +40,23 @@ def criar_default_perfils(_descricao):
         session.rollback()
     finally:
         session.close()
-
-def criar_admin_user(_user, _email, _senha):
+        
+def criar_usuario(_user, _email, _senha, _perfil):
     session = SessionLocal()
     try:
         usuario_existente = session.query(Usuario).filter_by(email=_email).first()
         
         if not usuario_existente:
             admin = Usuario(
-                nome=_user,
+                nome_completo=_user,
                 email=_email,
                 senha=hash_senha(_senha),
-                perfil=PERFIL.ADMIN.value
+                perfil=_perfil
             )
             session.add(admin)
             session.commit()
-            print("Usuário admin criado com sucesso.")
+            print("Usuário criado com sucesso.")
         else:
-            print("Usuário admin já existe.")
+            print("Usuário já existe.")
     finally:
         session.close()

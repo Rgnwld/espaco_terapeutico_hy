@@ -1,4 +1,5 @@
 import { act, createContext, useContext, useEffect, useReducer, useState } from 'react';
+import '../../../output.css';
 
 export const toastContext = createContext();
 
@@ -10,53 +11,130 @@ export const useToastContext = () => {
     return context;
 };
 
-// const toastInitialState = { id: Date.now(), show: false, message: '', type: 'info' }
+const reducer = (state, ev) => {
+    console.log(ev);
 
-const reducer = (state, action) => {
-    switch (action.type) {
+    function TypeSelector(type) {
+        switch (type) {
+            case 'success':
+                return toastStyles.icons.sucess;
+            case 'error':
+                return toastStyles.icons.error;
+            case 'warning':
+                return toastStyles.icons.warning;
+            default:
+                return null;
+        }
+    }
+
+    switch (ev.action) {
         case 'ADD_TOAST':
-            return [{ id: Date.now(), ...action.payload }, ...state];
+            return [{ ...ev, id: Date.now(), icon: TypeSelector(ev.type) }, ...state];
         case 'REMOVE_TOAST':
-            return state.filter((toast) => toast.id !== action.payload.id);
+            return state.filter((toast) => toast.id !== ev.id);
         default:
-            throw new Error(`Unhandled action type: ${action.type}`);
+            throw new Error(`Unhandled action type: ${ev.action}`);
     }
 };
 
 export const ToastProvider = ({ children }) => {
     const [toast, setToast] = useReducer(reducer, []);
 
+    function RemoveToast(toastItem) {
+        setToast({ action: 'REMOVE_TOAST', id: toastItem.id });
+    }
+
     return (
         <toastContext.Provider value={{ toast, setToast }}>
-            {children}
-            {/* {toast.map((e) => (
-                <div
-                    class="max-w-xs bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-neutral-800 dark:border-neutral-700"
-                    role="alert"
-                    tabindex="-1"
-                    aria-labelledby="hs-toast-normal-example-label"
-                >
-                    <div class="flex p-4">
-                        <div class="shrink-0">
-                            <svg
-                                class="shrink-0 size-4 text-blue-500 mt-0.5"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                viewBox="0 0 16 16"
+            <div className="absolute space-y-3 w-full margin-top-5 top-5 left-0 flex flex-col items-center z-50 ">
+                {toast.map((toastItem) => (
+                    <div key={toastItem.id} className="flex justify-center">
+                        <div
+                            id="toast-default"
+                            className="flex items-center w-full p-4 text-gray-500 bg-white rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 gap-10 animate-bounce"
+                            style={{ animationIterationCount: '.50' }}
+                            role="alert"
+                        >
+                            {toastItem.icon}
+                            <div className=" text-sm font-normal text-nowrap">{toastItem.message}</div>
+                            <button
+                                type="button"
+                                className=" bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+                                data-dismiss-target="#toast-default"
+                                onClick={() => RemoveToast(toastItem)}
+                                aria-label="Close"
                             >
-                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"></path>
-                            </svg>
-                        </div>
-                        <div class="ms-3">
-                            <p id="hs-toast-normal-example-label" class="text-sm text-gray-700 dark:text-neutral-400">
-                                {e.message}
-                            </p>
+                                <span className="sr-only">Close</span>
+                                <svg
+                                    className="w-3 h-3"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 14 14"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                    />
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                </div>
-            ))} */}
+                ))}
+            </div>
+            {children}
         </toastContext.Provider>
     );
+};
+
+// const toastInitialState = { id: Date.now(), show: false, message: '', type: 'info' }
+
+const toastStyles = {
+    icons: {
+        warning: (
+            <div className="inline-flex items-center justify-center shrink-0 w-8 h-8 text-orange-500 bg-orange-100 rounded-lg dark:bg-orange-700 dark:text-orange-200">
+                <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                >
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z" />
+                </svg>
+                <span className="sr-only">Warning icon</span>
+            </div>
+        ),
+        sucess: (
+            <div className="inline-flex items-center justify-center shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+                <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                >
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                </svg>
+                <span className="sr-only">Check icon</span>
+            </div>
+        ),
+        error: (
+            <div className="inline-flex items-center justify-center shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200">
+                <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                >
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z" />
+                </svg>
+                <span className="sr-only">Error icon</span>
+            </div>
+        ),
+    },
 };

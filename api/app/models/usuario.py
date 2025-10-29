@@ -7,57 +7,56 @@ from datetime import datetime
 
 Base = declarative_base()
 
-class TIPO_USUARIO(Enum):
-    ADMIN = 1
-    USER = 2
-
 class Usuario(Base):
-    __tablename__ = 'usuarios'
+    __tablename__ = 'usuario'
+    
     id = Column(Integer, primary_key=True)
-    nome = Column(String, nullable=False)
+    nome_completo = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     senha = Column(String, nullable=False)
     data_criacao = Column(DateTime, default=datetime.utcnow)
-    perfil = Column(Integer)  # Discriminator para herança
-
-class Admin(Usuario):
-    __tablename__ = 'admins'
-    id = Column(Integer, ForeignKey('usuarios.id'), primary_key=True)
-    nivel_de_acesso = Column(Integer, nullable=False)
+    perfil = Column(Integer, foreign_key="perfil.id")  # usado para diferenciar o tipo de usuário
 
     __mapper_args__ = {
-        'polymorphic_identity': 'admin'
+        "polymorphic_identity": "usuario",
     }
 
-    def validate_acao(self, func):
-        # Validação com base no nível de acesso
-        if self.nivel_de_acesso >= 5:
-            return func()
-        else:
-            return "Acesso negado"
-
-
+# -------------------------------
+# Subclasse Paciente (herda Usuario)
+# -------------------------------
 class Paciente(Usuario):
-    __tablename__ = 'pacientes'
-    id = Column(Integer, ForeignKey('usuarios.id'), primary_key=True)
+    __tablename__ = 'paciente'
+    
+    id = Column(Integer, ForeignKey('usuario.id'), primary_key=True)
     data_nascimento = Column(DateTime)
     genero = Column(String)
-    historico_medico = Column(LargeBinary)
-    documentacao = Column(LargeBinary)
-
+    
     __mapper_args__ = {
-        'polymorphic_identity': 'paciente'
+        "polymorphic_identity": "paciente",
     }
 
-    def marcarConsulta(self):
-        return f"Consulta marcada para o paciente {self.nome}"
+# -------------------------------
+# Subclasse Profissional (herda Usuario)
+# -------------------------------
+class Profissional(Usuario):
+    __tablename__ = 'profissional'
+    
+    id = Column(Integer, ForeignKey('usuario.id'), primary_key=True)
+    especialidade = Column(String)
+    
+    __mapper_args__ = {
+        "polymorphic_identity": "profissional",
+    }
 
+# -------------------------------
+# Exemplo de relacionamento (1 profissional -> N pacientes)
+# -------------------------------
+class Relacionamento(Base):
+    __tablename__ = 'relacionamento'
 
-class ProfissionalDeSaude(Base):
-    __tablename__ = 'profissionais'
     id = Column(Integer, primary_key=True)
-    nome = Column(String, nullable=False)
-    documentacao = Column(LargeBinary)
-
-    def solicitarExame(self):
-        return f"Exame solicitado por {self.nome}"
+    id_profissional = Column(Integer, ForeignKey('profissional.id'), nullable=False)
+    id_paciente = Column(Integer, ForeignKey('paciente.id'), nullable=False)
+    
+    profissional = relationship("Profissional", backref="relacionamentos")
+    paciente = relationship("Paciente", backref="relacionamentos")

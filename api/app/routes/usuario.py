@@ -1,6 +1,7 @@
 from flask import g, jsonify, Blueprint, request
 from db.connection import SessionLocal
-from app.models.usuario import Usuario, TIPO_USUARIO
+from app.models.usuario import Usuario
+from app.models.perfil import PERFIL
 from app.utils.senha import hash_senha
 from app.utils.auth import auth_required
 
@@ -30,18 +31,17 @@ def obter_usuario(id):
     db = g.db
     u = db.query(Usuario).filter(Usuario.id == id).first()
     if u:
-        return jsonify({'id':u.id, 'nome':u.nome, 'email': u.email}), 200
+        return jsonify({'id':u.id, 'nome_completo':u.nome, 'email': u.email}), 200
     else:
         return jsonify({"error": "Usuário não encontrado"}), 404
     
 
 @usuario_bp.route("/", methods=["POST"])
-@auth_required
 def criar_usuario():
     db = g.db
     data = request.get_json()
     
-    if not data or not all(k in data for k in ("nome", "email", "senha")):
+    if not data or not all(k in data for k in ("nome_completo", "email", "senha", "perfil")):
         return jsonify({"error": "Dados inválidos"}), 400
     
     usuario_existente = db.query(Usuario).filter_by(email=data['email']).first()
@@ -50,13 +50,13 @@ def criar_usuario():
         return jsonify({"error": "Usuário já existe"}), 400
     
     novo_usuario = Usuario(
-        nome=data['nome'],
+        nome_completo=data['nome_completo'],
         email=data['email'],
         senha=hash_senha(data['senha']),
-        tipo=TIPO_USUARIO.USER
+        perfil=data['perfil']
     )
     
     db.add(novo_usuario)
     db.commit()
     
-    return jsonify({'id': novo_usuario.id, 'nome': novo_usuario.nome, 'email': novo_usuario.email}), 201
+    return jsonify({'id': novo_usuario.id, 'nome_completo': novo_usuario.nome_completo, 'email': novo_usuario.email}), 201

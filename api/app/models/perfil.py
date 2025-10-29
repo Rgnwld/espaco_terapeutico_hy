@@ -9,7 +9,9 @@ Base = declarative_base()
 
 class PERFIL(Enum):
     ADMIN = 1
-    USER = 2
+    PROFISSIONAL = 2
+    PACIENTE = 3
+    
 
 class Perfil(Base):
     __tablename__ = 'perfil'

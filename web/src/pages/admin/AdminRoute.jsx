@@ -1,5 +1,5 @@
 import { Children, useEffect } from 'react';
-import AdminHeader from '../../assets/components/Header.component';
+import AdminHeader from '../../assets/components/Header/Header.component';
 import { useCookies } from 'react-cookie';
 
 function AdminRoute({ children }) {
