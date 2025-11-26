@@ -15,7 +15,6 @@ def auth_required(f):
         token = request.headers.get('Authorization')
         if not token:
             return jsonify(message="Token de autenticação ausente!"), 401
-        
         try:
             decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
             g.user = decoded["user"]

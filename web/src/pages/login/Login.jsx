@@ -4,12 +4,14 @@ import { useToastContext } from '../../assets/context/toastContext/toast.context
 import { instance } from '../../assets/api/connection.jsx';
 import bg from '../../assets/img/bg_v1.jpg';
 import '../../output.css';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const [validated, setValidated] = useState(false);
     const [userValidation, setUserValidation] = useState(true);
     const [spinner, setSpiner] = useState(false);
     const [cookie, setCookie] = useCookies();
+    const navigate = useNavigate();
     const { setToast } = useToastContext();
 
     async function handleSubmit(event) {
@@ -39,7 +41,7 @@ function Login() {
                 setUserValidation(true);
                 setValidated(true);
                 // Redirecionar ou atualizar a página após o login bem-sucedido
-                // window.location.href = '/home';
+                navigate('/dashboard');
             } catch (error) {
                 console.log(error);
                 if (error.response && error.response.status === 401) {

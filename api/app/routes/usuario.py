@@ -12,12 +12,14 @@ usuario_bp = Blueprint('usuario', __name__)
 def before_request():
     g.db = SessionLocal()
 
+# Middleware para fechar a sessão após a requisição
 @usuario_bp.teardown_request
 def teardown_request(exception=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
         
+# Middleware para adicionar cabeçalhos CORS após a requisição
 @usuario_bp.after_request 
 def after_request(response):
     header = response.headers
@@ -31,7 +33,7 @@ def obter_usuario(id):
     db = g.db
     u = db.query(Usuario).filter(Usuario.id == id).first()
     if u:
-        return jsonify({'id':u.id, 'nome_completo':u.nome, 'email': u.email}), 200
+        return jsonify({'id':u.id, 'nome_completo':u.nome_completo, 'email': u.email}), 200
     else:
         return jsonify({"error": "Usuário não encontrado"}), 404
     
@@ -41,7 +43,7 @@ def criar_usuario():
     db = g.db
     data = request.get_json()
     
-    if not data or not all(k in data for k in ("nome_completo", "email", "senha", "perfil")):
+    if not data or not all(key in data for key in ("nome_completo", "email", "senha")):
         return jsonify({"error": "Dados inválidos"}), 400
     
     usuario_existente = db.query(Usuario).filter_by(email=data['email']).first()
@@ -53,7 +55,7 @@ def criar_usuario():
         nome_completo=data['nome_completo'],
         email=data['email'],
         senha=hash_senha(data['senha']),
-        perfil=data['perfil']
+        perfil='2'
     )
     
     db.add(novo_usuario)

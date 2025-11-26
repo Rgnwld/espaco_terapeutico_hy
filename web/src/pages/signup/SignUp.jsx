@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie';
 import { useToastContext } from '../../assets/context/toastContext/toast.context.jsx';
 import { instance } from '../../assets/api/connection.jsx';
 import bg from '../../assets/img/bg_v1.jpg';
+import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
     const [validated, setValidated] = useState(false);
@@ -13,6 +14,7 @@ function SignUp() {
     });
     const [spinner, setSpiner] = useState(false);
     const [cookie, setCookie] = useCookies();
+    const navigate = useNavigate();
     const { setToast } = useToastContext();
 
     async function handleSubmit(event) {
@@ -53,7 +55,7 @@ function SignUp() {
                 setValidated(true);
                 setToast({ message: 'Cadastro realizado com sucesso!', type: 'success', action: 'ADD_TOAST' });
                 // Redirecionar ou atualizar a página após o login bem-sucedido
-                // window.location.href = '/home';
+                navigate('/dashboard');
             } catch (error) {
                 console.log(error);
                 if (error.response && error.response.status === 401) {

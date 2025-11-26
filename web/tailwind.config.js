@@ -5,6 +5,9 @@ export default {
     theme: {
         extend: {
             animation: {},
+            colors: {
+                'custom-prime': '#e4e1da',
+            },
         },
     },
     plugins: [],

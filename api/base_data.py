@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from app.models.usuario import Usuario, Base as BaseUsuario
 from app.models.perfil import Perfil, Base as BasePerfil
 from app.models.log import Log, Base as BaseLog
+from app.models.local import Local, Base as BaseLocal
 from app.utils.senha import hash_senha  # Importando a função de hash de senha
 from dotenv import load_dotenv
 import os
@@ -18,6 +19,7 @@ def init_db():
 
     BaseUsuario.metadata.create_all(engine)
     BasePerfil.metadata.create_all(engine)
+    BaseLocal.metadata.create_all(engine)
     BaseLog.metadata.create_all(engine)
 
 def criar_default_perfils(_descricao):
@@ -41,22 +43,39 @@ def criar_default_perfils(_descricao):
     finally:
         session.close()
         
-def criar_usuario(_user, _email, _senha, _perfil):
+def criar_usuario(_nome, _sobrenome, _email, _senha):
     session = SessionLocal()
     try:
         usuario_existente = session.query(Usuario).filter_by(email=_email).first()
         
         if not usuario_existente:
-            admin = Usuario(
-                nome_completo=_user,
+            _usuario = Usuario(
+                nome=_nome,
+                sobrenome=_sobrenome,
                 email=_email,
-                senha=hash_senha(_senha),
-                perfil=_perfil
+                senha=hash_senha(_senha)
             )
-            session.add(admin)
+            session.add(_usuario)
             session.commit()
             print("Usuário criado com sucesso.")
         else:
             print("Usuário já existe.")
+    finally:
+        session.close()
+        
+def criar_local(_estado, _cidade, _bairro, _logradouro, _numero, _complemento):
+    session = SessionLocal()
+    try:
+        _local = Local(
+            estado=_estado,
+            cidade=_cidade,
+            bairro=_bairro,
+            logradouro=_logradouro,
+            numero=_numero,
+            complemento=_complemento,
+        )
+        session.add(_local)
+        session.commit()
+        print("Local criado com sucesso.")
     finally:
         session.close()
