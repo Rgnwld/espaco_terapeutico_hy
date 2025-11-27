@@ -2,10 +2,10 @@ from enum import Enum
 from sqlalchemy import (
     Column, Integer, String, DateTime, LargeBinary, ForeignKey
 )
-from sqlalchemy.orm import relationship, declarative_base
+from app.models.baseObject import Base
 from datetime import datetime
 
-Base = declarative_base()
+# Base = declarative_base()
 
 class Local(Base):
     __tablename__ = 'local'
@@ -14,7 +14,7 @@ class Local(Base):
     estado = Column(String, nullable=False)
     cidade = Column(String, nullable=False)
     bairro = Column(String, nullable=False)
-    logradouro = Column(String, nullable=False)  # usado para diferenciar o tipo de usuário
+    logradouro = Column(String, nullable=False) 
     numero = Column(String, nullable=True)
     complemento = Column(String, nullable=True)
     data_criacao = Column(DateTime, default=datetime.utcnow)

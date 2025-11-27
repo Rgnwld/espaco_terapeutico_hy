@@ -1,8 +1,5 @@
 from flask import g, jsonify, Blueprint, request
 from db.connection import SessionLocal
-from app.models.usuario import Usuario
-from app.models.perfil import PERFIL
-from app.utils.senha import hash_senha
 from app.utils.auth import auth_required
 from app.models.local import Local 
 from datetime import datetime
