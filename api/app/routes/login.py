@@ -54,7 +54,7 @@ def login():
     
     if usuario_existente:
         try: 
-            print("Verificando senha para o usuário:" + data['senha'] + " com hash: " + usuario_existente.senha)
+            print("Verificando senha para o usuário:" + data['email'] + " com hash: " + usuario_existente.senha)
             senha = bcrypt.checkpw(password=str(data['senha']).encode('utf-8'), hashed_password=usuario_existente.senha.encode('utf-8'))
         except Exception as e:
             log_acesso = Log(descricao=f"Usuário: {data['email']} - Erro ao verificar senha: {str(e)}", tipo="login")

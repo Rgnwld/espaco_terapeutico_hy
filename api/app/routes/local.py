@@ -48,6 +48,7 @@ def obter_local(id):
     
 
 @local_bp.route("/", methods=["POST"])
+@auth_required
 def criar_local():
     db = g.db
     data = request.get_json()
@@ -69,3 +70,23 @@ def criar_local():
     db.commit()
     
     #return jsonify({'id': novo_usuario.id, 'nome_completo': novo_usuario.nome_completo, 'email': novo_usuario.email}), 201
+    return jsonify({"message": "Local criado com sucesso", "id": novo_local.id}), 201
+
+@local_bp.route("/<id>", methods=["GET"])
+@auth_required
+def obter_lista_local(id):
+    db = g.db
+    locais = db.query(Local).all()
+    lista_locais = []
+    for _local in locais:
+        lista_locais.append({
+                'id':_local.id,
+                'estado':_local.estado,
+                'cidade':_local.cidade,
+                'bairro':_local.bairro,
+                'logradouro':_local.logradouro,
+                'numero':_local.numero,
+                'complemento':_local.complemento,
+                'data_criacao': datetime.now()
+             })
+    return jsonify(lista_locais), 200

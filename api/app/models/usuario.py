@@ -28,7 +28,7 @@ class Usuario(Base):
     sobrenome = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     senha = Column(String, nullable=False)
-    data_nascimento = Column(DateTime, default=datetime.utcnow)
+    data_nascimento = Column(DateTime)
     data_criacao = Column(DateTime, default=datetime.utcnow)
     
     perfils = relationship("Perfil", back_populates="usuarios", secondary=perfil_usuario)
